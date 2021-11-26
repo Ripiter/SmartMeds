@@ -4,12 +4,14 @@ using Android.Content;
 using Android.Graphics;
 using Android.OS;
 using AndroidX.Core.App;
+using SmartMeds;
 using Xamarin.Forms;
 using AndroidApp = Android.App.Application;
 
+[assembly: Dependency(typeof(SmartMeds.Droid.AndroidNotificationManager))]
 namespace SmartMeds.Droid
 {
-    class AndroidNotificationManager : INotificationManager
+    public class AndroidNotificationManager : INotificationManager
     {
         const string channelId = "default";
         const string channelName = "Default";
@@ -89,9 +91,18 @@ namespace SmartMeds.Droid
                 .SetSmallIcon(Resource.Drawable.abc_btn_default_mtrl_shape)
                 .SetDefaults((int)NotificationDefaults.Sound | (int)NotificationDefaults.Vibrate);
 
-            Notification notification = builder.Build();
+            var notification = builder.Build();
             manager.Notify(messageId++, notification);
         }
+
+        public void DeleteNotification(int id)
+        {
+            Intent intent = new Intent(AndroidApp.Context, typeof(AlarmHandler));
+            PendingIntent pendingIntent = PendingIntent.GetBroadcast(AndroidApp.Context, id, intent, PendingIntentFlags.CancelCurrent);
+            AlarmManager alarmManager = AndroidApp.Context.GetSystemService(Context.AlarmService) as AlarmManager;
+            alarmManager.Cancel(pendingIntent);
+        }
+
 
         void CreateNotificationChannel()
         {

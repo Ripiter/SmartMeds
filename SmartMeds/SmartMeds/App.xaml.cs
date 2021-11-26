@@ -9,6 +9,8 @@ namespace SmartMeds
         public App()
         {
             InitializeComponent();
+            //DependencyService.Register<INotificationManager>();
+            DependencyService.Get<SmartMeds.INotificationManager>().Initialize();
 
             MainPage = new NavigationPage(new MainPage());
         }

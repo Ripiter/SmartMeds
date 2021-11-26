@@ -7,9 +7,7 @@ using System.Threading.Tasks;
 using Xamarin.Forms;
 using SmartMeds.Models;
 using System.Diagnostics;
-
-// Test
-using SmartMeds.DB;
+using SmartMeds;
 
 namespace SmartMeds
 {
@@ -18,9 +16,15 @@ namespace SmartMeds
         DataController dataController = new DataController();
         List<Prescription> prescriptions;
 
+        INotificationManager notificationManager;
         public MainPage()
         {
             InitializeComponent();
+
+            notificationManager = DependencyService.Get<INotificationManager>();
+            notificationManager.NotificationReceived += NotificationRecived;
+            //notificationManager.SendNotification("abc", "abcd");
+
             TimeTick.MinuteTick += MinuteTickEvent;
             prescriptions = dataController.GetPrescriptions("1");
             Histroy_btn.Clicked += ShowHistoryPage;
@@ -76,6 +80,17 @@ namespace SmartMeds
             grid_v.Children.Add(new Label() { Text = "Description", FontAttributes = FontAttributes.Bold, FontSize = 19 }, 2, 0);
             grid_v.Children.Add(new Label() { Text = "Amount", FontAttributes = FontAttributes.Bold, FontSize = 19 }, 3, 0);
             grid_v.Children.Add(new Label() { Text = "Type", FontAttributes = FontAttributes.Bold, FontSize = 19 }, 4, 0);
+        }
+
+        private void NotificationRecived(object sender, EventArgs e)
+        {
+            var evtData = (NotificationEventArgs)e;
+           ShowNotification(evtData.Title, evtData.Message);
+        }
+   
+        private void ShowNotification(string title, string message)
+        {
+            throw new NotImplementedException();
         }
 
         private void ShowHistoryPage(object sender, EventArgs e)
