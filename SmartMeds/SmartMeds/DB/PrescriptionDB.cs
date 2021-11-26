@@ -1,66 +1,21 @@
-﻿using SQLite;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using SmartMeds.Models;
 using System.Threading.Tasks;
+using SmartMeds.Models;
 
 namespace SmartMeds.DB
 {
-    abstract class PrescriptionDB
+    class PrescriptionDB : DBController
     {
-        protected SQLiteAsyncConnection Database;
-        protected bool tablesCreated = false;
-
-        public void CreateTables()
+        public override Task<List<T>> GetItemsAsync<T>()
         {
-            if (tablesCreated == false)
-            {
-                CreateTableResult result = Database.CreateTableAsync<PrescriptionTaken>().Result;
-                CreateTableResult result2 = Database.CreateTableAsync<Prescription>().Result;
-                tablesCreated = true;
-            }
+            return (Task<List<T>>)Convert.ChangeType(Database.Table<Prescription>().ToListAsync(), typeof(T));
         }
 
-        public PrescriptionDB()
+        protected override T RunQuery<T>(string query)
         {
-            Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-            CreateTables();
-        }
-        public abstract Task<List<T>> GetItemsAsync<T>();
-
-        //DateTime from, DateTime to, 
-        protected abstract T RunQuery<T>(string query);
-        //{
-        //    // SQL queries are also possible
-        //    // "SELECT * FROM [PrescriptionTaken]"
-        //    return Database.QueryAsync<T>(query);
-        //}
-
-        public Task<List<PrescriptionTaken>> GetTopItems(int top)
-        {
-            // SQL queries are also possible
-            return Database.QueryAsync<PrescriptionTaken>("SELECT * FROM PrescriptionTaken limit" + top);
-        }
-
-        public Task<PrescriptionTaken> GetItemAsync(int id)
-        {
-            return Database.Table<PrescriptionTaken>().Where(i => i.ID == id).FirstOrDefaultAsync();
-        }
-
-        public Task<int> UpdateItemAsync(PrescriptionTaken item)
-        {
-            return Database.UpdateAsync(item);
-        }
-
-        public Task<int> SaveItemAsync<T>(T item)
-        {
-            return Database.InsertAsync(item);
-        }
-
-        public Task<int> DeleteItemAsync(PrescriptionTaken item)
-        {
-            return Database.DeleteAsync(item);
+            return (T)Convert.ChangeType(Database.QueryAsync<Prescription>(query), typeof(T));
         }
     }
 }

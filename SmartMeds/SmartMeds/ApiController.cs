@@ -19,5 +19,10 @@ namespace SmartMeds
         {
             return prescriptionCaller.GetPrescriptions(userID);
         }
+
+        public Prescription GetPrescriptionById(int id)
+        {
+            return prescriptionCaller.GetPrescription(id);
+        }
     }
 }

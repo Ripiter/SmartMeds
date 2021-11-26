@@ -15,31 +15,15 @@ namespace SmartMeds
 {
     public partial class MainPage : ContentPage, ITick
     {
-        ApiController apiController = new ApiController();
+        DataController dataController = new DataController();
         List<Prescription> prescriptions;
 
         public MainPage()
         {
             InitializeComponent();
             TimeTick.MinuteTick += MinuteTickEvent;
-            prescriptions = apiController.GetPrescriptions("1");
-
-            //TableView tv = new TableView();
-            //tv.Root = new TableRoot();
-            //TableSection cells = new TableSection();
-
-            //for (int i = 0; i < prescriptions.Count; i++)
-            //{
-            //    cells.Add(new TextCell() { Text = $"Start [{prescriptions[i].GetStartDate()}] End:[{prescriptions[i].GetEndDate()}] " +
-            //        $"Description: [{prescriptions[i].Description}] Type: [{prescriptions[i].Preparation.Item}] Amount: [{prescriptions[i].Preparation.Amount}]"
-            //    });
-            //}
-
-
-            //tv.Root.Add(cells);
-            //tv.Intent = TableIntent.Data;
-
-            //Content = tv;
+            prescriptions = dataController.GetPrescriptions("1");
+            Histroy_btn.Clicked += ShowHistoryPage;
 
             // for each property
             for (int i = 0; i < 5; i++)
@@ -86,6 +70,7 @@ namespace SmartMeds
             }
 
    
+            // Add titles on the top of the grid
             grid_v.Children.Add(new Label() { Text = "Start", FontAttributes = FontAttributes.Bold, FontSize = 19 }, 0, 0);
             grid_v.Children.Add(new Label() { Text = "End", FontAttributes = FontAttributes.Bold, FontSize = 19 }, 1, 0);
             grid_v.Children.Add(new Label() { Text = "Description", FontAttributes = FontAttributes.Bold, FontSize = 19 }, 2, 0);
@@ -93,61 +78,33 @@ namespace SmartMeds
             grid_v.Children.Add(new Label() { Text = "Type", FontAttributes = FontAttributes.Bold, FontSize = 19 }, 4, 0);
         }
 
+        private void ShowHistoryPage(object sender, EventArgs e)
+        {
+            Navigation.PushAsync(new MedsHistory());
+        }
+
         private async void Tap_Tapped(object sender, EventArgs e)
         {
             if(sender is Label l)
             {
                 Debug.WriteLine($"Row: {Grid.GetRow(l)} Col: {Grid.GetColumn(l)}");
-                int i = Grid.GetRow(l);
+                int rowIndex = Grid.GetRow(l);
 
                 if (prescriptions != null)
                 {
-                    if (prescriptions.Count >= i - 1 && i - 1 >= 0)
+                    if (prescriptions.Count >= rowIndex - 1 && rowIndex - 1 >= 0)
                     {
-                        Debug.WriteLine($"{prescriptions[i - 1].DebugString()}");
-                        PrescriptionTakenDB db = new PrescriptionTakenDB();
-                        int r = db.SaveItemAsync<PrescriptionTaken>(new PrescriptionTaken(0, DateTime.Now)).Result;
-                        List<PrescriptionTaken> item = db.GetBetweenDates(DateTime.Now, DateTime.Now).Result;
-                        int r2 = db.SaveItemAsync(prescriptions[i - 1]).Result;
-                        List<Prescription> lp = db.GetItemsAsynctest().Result;
-                        //int r = db.SaveItemAsync(new PrescriptionTaken(prescriptions[i - 1].ID, DateTime.Now)).Result;
-                        //List<PrescriptionTaken> items = db.GetItemsAsync<PrescriptionTaken>().Result;   
+                        Debug.WriteLine($"{prescriptions[rowIndex - 1].DebugString()}");
+                        await Navigation.PushAsync(new SinglePrescriptionPage(prescriptions[rowIndex - 1]));
                     }
                 }
             }
         }
 
-        void ShowNotification(string title, string message)
-        {
-            Debug.WriteLine($"Title: {title} Msg: {message}");
-        }
-
-        private void Button_Clicked(object sender, EventArgs e)
-        {
-            List<Prescription> prescriptions = apiController.GetPrescriptions("1");
-
-            for (int i = 0; i < prescriptions.Count; i++)
-            {
-                //Debug.WriteLine($"Start [{prescriptions[i].GetStartDate()}] End:[{prescriptions[i].GetEndDate()}] " +
-                    //$"Description: [{prescriptions[i].Description}] Type: [{prescriptions[i].Preparation.Item}] Amount: [{prescriptions[i].Preparation.Amount}]");
-            }
-        }
 
         public void MinuteTickEvent(object sender, EventArgs e)
         {
-            string title = $"Jojo";
-            string message = $"1 minute has passed";
-            //notificationManager.SendNotification(title, message);
-            ShowNotification(title, message);
+            Debug.WriteLine("1 minute has passed");
         }
-    }
-
-    class A
-    {
-
-    }
-    class B : A
-    {
-
     }
 }

@@ -6,17 +6,17 @@ using SmartMeds.Models;
 
 namespace SmartMeds.DB
 {
-    class PrescriptionTakenDB : PrescriptionDB
+    class PrescriptionTakenDB : DBController
     {
         public override Task<List<T>> GetItemsAsync<T>()
         {
-            return (Task<List<T>>)Convert.ChangeType(Database.Table<PrescriptionTaken>().ToListAsync(), typeof(T));
+            return (Task<List<T>>)Convert.ChangeType(Database.Table<PrescriptionTaken>().ToListAsync(), typeof(Task<List<PrescriptionTaken>>));
+        }
+        public List<PrescriptionTaken> GetItems2()
+        {
+            return Database.Table<PrescriptionTaken>().ToListAsync().Result;
         }
 
-        public Task<List<Prescription>> GetItemsAsynctest()
-        {
-            return Database.Table<Prescription>().ToListAsync();
-        }
 
         protected override T RunQuery<T>(string query)
         {
@@ -27,18 +27,5 @@ namespace SmartMeds.DB
         {
             return RunQuery<Task<List<PrescriptionTaken>>>("SELECT * FROM [PrescriptionTaken]");
         }
-
-
-
-        //public override Task<List<PrescriptionTaken>> GetItemsAsync<T>()
-        //{
-        //    return Database.Table<PrescriptionTaken>().ToListAsync();
-        //}
-        //public Task<List<PrescriptionTaken>> GetItems()
-        //{
-        //    return Database.Table<PrescriptionTaken>().ToListAsync();
-        //}
-
-
     }
 }
